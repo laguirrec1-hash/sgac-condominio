@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  mysqldb:
+    image: mysql:8.0
+    container_name: sgac_mysql
+    restart: always
+    environment:
+      MYSQL_DATABASE: sgac_db
+      MYSQL_ROOT_PASSWORD: root_password_123
+      MYSQL_USER: sgac_user
+      MYSQL_PASSWORD: sgac_password_123
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: sgac_backend
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:3306/sgac_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: sgac_user
+      SPRING_DATASOURCE_PASSWORD: sgac_password_123
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      JWT_SECRET: EstaEsUnaClaveSuperSecretaDePruebaParaFirmarTokensJWT123456789
+    depends_on:
+      - mysqldb
+
+volumes:
+  mysql_data:
